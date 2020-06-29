@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 
 import { FiChevronRight } from 'react-icons/fi';
 import logoImg from '../../assets/logo.svg';
@@ -8,7 +8,7 @@ import api from '../../services/api';
 import { Title, Form, Repositories, Error } from './styles';
 
 interface Repository {
-  fullname: string;
+  full_name: string;
   description: string;
   owner: {
     login: string;
@@ -19,7 +19,17 @@ interface Repository {
 const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState('');
   const [inputError, setInputError] = useState('');
-  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [repositories, setRepositories] = useState<Repository[]>(() => {
+    const storagedRepositories = localStorage.getItem(
+      '@Githubexplorer:repositories',
+    );
+
+    if (storagedRepositories) {
+      return JSON.parse(storagedRepositories);
+    }
+
+    return [];
+  });
 
   async function handleAddRepository(
     event: FormEvent<HTMLFormElement>,
@@ -36,6 +46,8 @@ const Dashboard: React.FC = () => {
 
       const repository = response.data;
 
+      console.log(repository);
+
       setRepositories([...repositories, repository]);
       setNewRepo('');
       setInputError('');
@@ -43,6 +55,13 @@ const Dashboard: React.FC = () => {
       setInputError('Repository not found, please try again.');
     }
   }
+
+  useEffect(() => {
+    localStorage.setItem(
+      '@Githubexplorer:repositories',
+      JSON.stringify(repositories),
+    );
+  }, [repositories]);
 
   return (
     <>
@@ -60,13 +79,13 @@ const Dashboard: React.FC = () => {
       {inputError && <Error>{inputError}</Error>}
       <Repositories>
         {repositories.map(repository => (
-          <a key={repository.fullname} href="teste">
+          <a key={repository.full_name} href="teste">
             <img
               src={repository.owner.avatar_url}
               alt={repository.owner.login}
             />
             <div>
-              <strong>{repository.fullname}</strong>
+              <strong>{repository.full_name}</strong>
               <p>{repository.description}</p>
             </div>
             <FiChevronRight size={40} />
