@@ -1,80 +1,65 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 
 import { FiChevronRight } from 'react-icons/fi';
 import logoImg from '../../assets/logo.svg';
 
+import api from '../../services/api';
+
 import { Title, Form, Repositories } from './styles';
 
+interface Repository {
+  fullname: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
 const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  async function handleAddRepository(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+
+    const response = await api.get<Repository>(`/repos/${newRepo}`);
+
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+    setNewRepo('');
+  }
+
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore repositories at Github</Title>
-      <Form action="">
-        <input type="text" placeholder="Enter repository name" />
+      <Form onSubmit={handleAddRepository}>
+        <input
+          value={newRepo}
+          onChange={e => setNewRepo(e.target.value)}
+          type="text"
+          placeholder="Enter repository name"
+        />
         <button type="submit">Search</button>
       </Form>
       <Repositories>
-        <a href="teste">
-          <img
-            src="https://avatars1.githubusercontent.com/u/63361486?s=460&u=3a441b8aabdb9b7d8afd66ac54d7498d100a0b73&v=4"
-            alt="Victor França"
-          />
-          <div>
-            <strong>Victorfclima/nodejs-api</strong>
-            <p>
-              [Monorep] API developed with NodeJS and Express, integrated with
-              React and React-Native via Axios. There is also a version using
-              TypeScript.
-            </p>
-          </div>
-          <FiChevronRight size={40} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars1.githubusercontent.com/u/63361486?s=460&u=3a441b8aabdb9b7d8afd66ac54d7498d100a0b73&v=4"
-            alt="Victor França"
-          />
-          <div>
-            <strong>Victorfclima/nodejs-api</strong>
-            <p>
-              [Monorep] API developed with NodeJS and Express, integrated with
-              React and React-Native via Axios. There is also a version using
-              TypeScript.
-            </p>
-          </div>
-          <FiChevronRight size={40} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars1.githubusercontent.com/u/63361486?s=460&u=3a441b8aabdb9b7d8afd66ac54d7498d100a0b73&v=4"
-            alt="Victor França"
-          />
-          <div>
-            <strong>Victorfclima/nodejs-api</strong>
-            <p>
-              [Monorep] API developed with NodeJS and Express, integrated with
-              React and React-Native via Axios. There is also a version using
-              TypeScript.
-            </p>
-          </div>
-          <FiChevronRight size={40} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars1.githubusercontent.com/u/63361486?s=460&u=3a441b8aabdb9b7d8afd66ac54d7498d100a0b73&v=4"
-            alt="Victor França"
-          />
-          <div>
-            <strong>Victorfclima/nodejs-api</strong>
-            <p>
-              [Monorep] API developed with NodeJS and Express, integrated with
-              React and React-Native via Axios. There is also a version using
-              TypeScript.
-            </p>
-          </div>
-          <FiChevronRight size={40} />
-        </a>
+        {repositories.map(repository => (
+          <a key={repository.fullname} href="teste">
+            <img
+              src={repository.owner.avatar_url}
+              alt={repository.owner.login}
+            />
+            <div>
+              <strong>{repository.fullname}</strong>
+              <p>{repository.description}</p>
+            </div>
+            <FiChevronRight size={40} />
+          </a>
+        ))}
       </Repositories>
     </>
   );
