@@ -34,7 +34,7 @@
     "react/jsx-one-expression-per-line": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "@typescript-eslint/explict-function-return-type": [
+    "@typescript-eslint/explicit-function-return-type": [
       "error",
       {
         "allowExpressions": true
